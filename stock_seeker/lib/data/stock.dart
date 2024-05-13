@@ -46,20 +46,19 @@ class Stock {
   late String logoUrl;
   late Quote quote;
 
-  Stock({required this.symbol}) {
-    fetchData(symbol: symbol);
-  }
+  Stock({required this.symbol});
 
   Future<void> fetchData({
     required String symbol,
     String interval = '1day',
     int outputSize = 200,
     int dp = 5,
-    String order = 'DESC',
+    String order = 'ASC',
     bool previousClose = true,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
+
     startDate ??= DateTime.now().subtract(const Duration(days: 180));
 
     // Format the dates
@@ -97,17 +96,23 @@ class Stock {
       currency = timeSeriesJson['meta']['currency'];
       exchange = timeSeriesJson['meta']['exchange'];
 
-      // Convert the existing values to a map
-      var valuesMap = {for (var value in values) value.dateTime: value};
+      // // Convert the existing values to a map
+      // var valuesMap = {for (var value in values) value.dateTime: value};
+      //
+      // // Merge the new data with the existing data
+      // for (var data in timeSeriesJson['values']) {
+      //   var value = StockValue.fromJson(data);
+      //   valuesMap.putIfAbsent(value.dateTime, () => value);
+      // }
+      //
+      // // Convert the map back to a list
+      // values = valuesMap.values.toList();
 
-      // Merge the new data with the existing data
-      for (var data in timeSeriesJson['values']) {
-        var value = StockValue.fromJson(data);
-        valuesMap.putIfAbsent(value.dateTime, () => value);
-      }
+      values = (timeSeriesJson['values'] as List)
+          .map((data) => StockValue.fromJson(data))
+          .toList();
 
-      // Convert the map back to a list
-      values = valuesMap.values.toList();
+      print(values);
 
       // Store quote data
       name = quoteJson['name'];
@@ -127,6 +132,7 @@ class Stock {
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
       return jsonResponse['url'];
     } else {
       print('Request failed with status: ${response.statusCode}.');
