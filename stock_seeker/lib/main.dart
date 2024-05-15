@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'charts/basic_chart.dart';
+import 'charts/detail_chart.dart';
 import 'data/stock.dart';
 
 void main() {
@@ -24,13 +25,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Function to convert a date from 'yyyy-MM-dd' to 'Month. dd'
-String convertDate(String date) {
-  var parsedDate = DateTime.parse(date);
-  var formatter = DateFormat('MMM. dd');
-  return formatter.format(parsedDate);
-}
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -42,20 +36,30 @@ class _MyHomePageState extends State<MyHomePage> {
   late StockList stockList;
   bool loaded = false;
 
+  // Create a list of boolean values to keep track of the loaded stocks
+  List<bool> loadedStocks = [];
+
   @override
   void initState() {
     super.initState();
-    stockList = StockList(['IBM', 'META']);
+    stockList = StockList(['AAPL', 'TSLA', 'GOOGL', 'AMZN', 'IBM']);
+    loadedStocks = List.filled(stockList.stocks.length, false);
     fetchStockData();
   }
 
   Future<void> fetchStockData() async {
     for (var stock in stockList.stocks) {
-      await stock.fetchData(symbol: stock.symbol, outputSize: 30);
+      await stock.fetchData(symbol: stock.symbol);
+      setState(() {
+        loadedStocks[stockList.stocks.indexOf(stock)] = true;
+        loaded = loadedStocks.every((element) => element == true);
+      });
     }
-    setState(() {
-      loaded = true;
-    });
+  }
+
+  // Function to filter the stocks that are loaded
+  bool isStockLoaded(Stock stock) {
+    return loadedStocks[stockList.stocks.indexOf(stock)];
   }
 
   @override
@@ -74,70 +78,19 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 20),
-            if (loaded)
+            if (stockList.stocks
+                .where((stock) => isStockLoaded(stock) == true)
+                .toList()
+                .isNotEmpty)
               SizedBox(
                   height: 300,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: LineChart(
-                      LineChartData(
-                        gridData: const FlGridData(show: false),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          leftTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                                showTitles: true,
-                                // reservedSize: 40,
-                                interval: 5,
-                                getTitlesWidget: (value, meta) =>
-                                    SideTitleWidget(
-                                        axisSide: meta.axisSide,
-                                        space: 5,
-                                        child: Text(convertDate(stockList.stocks.first
-                                                .values[value.toInt()].dateTime)))),
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        minX: 0,
-                        minY: stockList.stocks
-                            .map((stock) => stock.values
-                                .map((value) => double.parse(value.close))
-                                .reduce(min))
-                            .reduce(min)
-                            .floorToDouble(),
-                        maxY: stockList.stocks
-                            .map((stock) => stock.values
-                                .map((value) => double.parse(value.close))
-                                .reduce(max))
-                            .reduce(max)
-                            .ceilToDouble(),
-                        lineBarsData: stockList.stocks
-                            .map((stock) => LineChartBarData(
-                                  spots: stock.values
-                                      .asMap()
-                                      .entries
-                                      .map((entry) => FlSpot(
-                                          entry.key.toDouble(),
-                                          double.parse(entry.value.close)))
-                                      .toList(),
-                                  isCurved: true,
-                                  preventCurveOverShooting: true,
-                                  barWidth: 4,
-                                  isStrokeCapRound: true,
-                                  isStrokeJoinRound: true,
-                                  dotData: const FlDotData(show: false),
-                                  belowBarData: BarAreaData(show: true),
-                                  color: stock.isCloseDifferencePositive()
-                                      ? Colors.green
-                                      : Colors.red,
-                                ))
-                            .toList(),
-                      ),
-                    ),
+                    child:
+                            BasicChart(stock: stockList.stocks
+                            .where((stock) => isStockLoaded(stock) == true)
+                            .toList()[0]),
+
                   ))
             else
               const CircularProgressIndicator(
