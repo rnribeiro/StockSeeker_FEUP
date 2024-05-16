@@ -6,6 +6,8 @@ final List<String> apiKeys = [
   '16a234026f7f4dc297d941f0a7b75862',
   '380cf148d7b34ce5af5d47c82234817f',
   '952b25154aad4d27977bd5b8733502c4',
+  '27e5935b356445c3b135e2e641281b2f',
+  '55e73396144f4b4cacb85a640a4e0a4c',
 ];
 
 class StockList {
@@ -153,6 +155,7 @@ class Stock {
       name = json['name'];
       quote = Quote.fromJson(json);
     } catch (e) {
+      print(e);
       if (json['code'] == 429) {
         await fecthQuoteData(
           symbol: symbol,
@@ -201,7 +204,10 @@ class Stock {
       history = (json['values'] as List)
           .map((data) => StockValue.fromJson(data))
           .toList();
+
+      print('History data fetched for $symbol');
     } catch (e) {
+      print("$symbol   $e");
       // If rate limited and there are more API keys, try the next API key
       if (json['code'] == 429) {
         await fetchHistoryData(

@@ -1,6 +1,4 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'charts/basic_chart.dart';
 import 'charts/detail_chart.dart';
 import 'data/stock.dart';
@@ -42,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    stockList = StockList(['AAPL', 'TSLA', 'GOOGL', 'AMZN', 'IBM']);
+    stockList = StockList(['AAPL', 'IBM', 'HPE', 'MSFT', 'ORCL', 'GOOGL', 'META', 'X', 'INTC', 'AMZN']);
     loadedStocks = List.filled(stockList.stocks.length, false);
     fetchStockData();
   }
@@ -87,9 +85,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     child:
-                            BasicChart(stock: stockList.stocks
+                            DetailChart(stockList: stockList.stocks
                             .where((stock) => isStockLoaded(stock) == true)
-                            .toList()[0]),
+                            .toList()),
 
                   ))
             else
