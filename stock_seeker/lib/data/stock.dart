@@ -251,13 +251,22 @@ class Stock {
     }
   }
 
-  List<Map<String, String>> getLastXDaysData(int days) {
+ /* List<Map<String, String>> getLastXDaysData(int days) {
     var now = DateTime.now();
     var xDaysAgo = now.subtract(Duration(days: days));
 
     return history
         .where((value) => DateTime.parse(value.dateTime).isAfter(xDaysAgo))
         .map((value) => {'dateTime': value.dateTime, 'close': value.close})
+        .toList();
+  }*/
+
+  List<StockValue> getLastXDaysData(int days) {
+    var now = DateTime.now();
+    var xDaysAgo = now.subtract(Duration(days: days));
+
+    return history
+        .where((value) => DateTime.parse(value.dateTime).isAfter(xDaysAgo))
         .toList();
   }
 
