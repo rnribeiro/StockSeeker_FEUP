@@ -18,6 +18,19 @@ class BasicChart extends StatelessWidget {
         gridData: const FlGridData(show: false),
         titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
+        lineTouchData: const LineTouchData(enabled: false),
+        extraLinesData: ExtraLinesData(horizontalLines: [
+            HorizontalLine(
+              y: double.parse(stock.quote.close),
+              color: stock.isQuoteCloseDifferencePositive()
+                  ? Colors.green
+                  : Colors.red,
+              strokeWidth: 2,
+              dashArray: [5, 3],
+            )
+          ]
+        ),
+        backgroundColor: Colors.transparent,
         minX: 0,
         minY: stock.daily
             .map((value) => double.parse(value.close))
