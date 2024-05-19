@@ -75,7 +75,7 @@ class Stock {
           symbol: symbol, startDate: formattedNow, timezone: timezone);
     } else {
       // Define the start date as yesterday
-      var yesterday = DateTime.now().subtract(const Duration(days: 1));
+      var yesterday = DateTime.now().subtract(const Duration(days: 2));
       var dateFormatter = DateFormat('yyyy-MM-dd');
       var formattedYesterday = dateFormatter.format(yesterday);
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../data/stock.dart';
 import 'package:intl/intl.dart';
+import '../data/stock.dart';
+import '../charts/detail_chart.dart';
 
 class StockDetailsScreen extends StatefulWidget {
   final Stock stock;
@@ -40,9 +40,6 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
         case '1D':
           chartData = widget.stock.getLastXDaysData(1);
           break;
-        default:
-          chartData = widget.stock.getLastXDaysData(1);
-          break;
       }
     });
   }
@@ -61,11 +58,10 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
             SizedBox(height: 10),
             _buildDateRangeButtons(),
             SizedBox(height: 10),
-            _buildPriceChart(),
+            DetailChart(stockList: [widget.stock]), // Using DetailChart here
             SizedBox(height: 10),
             _buildPriceDetails(),
-            SizedBox(height: 10),
-            _buildBuySellButtons(),
+            SizedBox(height: 10)
           ],
         ),
       ),
@@ -105,7 +101,8 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
       children: ranges.map((range) {
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
-            foregroundColor: selectedRange == range ? Colors.white : Colors.black, backgroundColor: selectedRange == range ? Colors.blue : Colors.grey[300],
+            foregroundColor: selectedRange == range ? Colors.white : Colors.black,
+            backgroundColor: selectedRange == range ? Colors.blue : Colors.grey[300],
           ),
           onPressed: () {
             setState(() {
@@ -116,50 +113,6 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
           child: Text(range),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildPriceChart() {
-    return SizedBox(
-      height: 200,
-      child: LineChart(
-        LineChartData(
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: chartData
-                  .map((value) => FlSpot(
-                  DateTime.parse(value.dateTime).millisecondsSinceEpoch
-                      .toDouble(),
-                  double.parse(value.close)))
-                  .toList(),
-              isCurved: true,
-              color: Colors.blue,
-              barWidth: 4,
-              belowBarData: BarAreaData(show: false),
-            ),
-          ],
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  var date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                  return Text(DateFormat('MMM dd').format(date));
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  return Text(value.toString());
-                },
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -191,26 +144,6 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBuySellButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            // Implement Buy action
-          },
-          child: Text('Buy'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // Implement Sell action
-          },
-          child: Text('Sell'),
-        ),
-      ],
     );
   }
 }
