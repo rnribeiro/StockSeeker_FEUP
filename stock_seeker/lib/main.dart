@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'charts/basic_chart.dart';
+import 'package:stock_seeker/screens/stock_details_screen.dart';
 import 'charts/detail_chart.dart';
 import 'data/stock.dart';
 
@@ -81,20 +81,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 .toList()
                 .isNotEmpty)
               SizedBox(
-                  height: 300,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child:
-                            DetailChart(stockList: stockList.stocks
-                            .where((stock) => isStockLoaded(stock) == true)
-                            .toList()),
-
-                  ))
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: DetailChart(
+                    stockList: stockList.stocks
+                        .where((stock) => isStockLoaded(stock) == true)
+                        .toList(),
+                  ),
+                ),
+              )
             else
               const CircularProgressIndicator(
                 color: Colors.blue,
                 strokeWidth: 4,
               ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StockDetailsScreen(
+                      stock: stockList.stocks.firstWhere((stock) => isStockLoaded(stock)), // example to pass the first loaded stock
+                    ),
+                  ),
+                );
+              },
+              child: Text('View Stock Details'),
+            ),
           ],
         ),
       ),
