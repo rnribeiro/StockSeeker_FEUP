@@ -163,6 +163,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  bool isFiltered = false;
+
   Widget _getFloatingActionButton() {
     if (_selectedStocks.length == 2) {
       return FloatingActionButton(
@@ -209,13 +211,16 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
-                //TODO: search for stocks
+                // TODO: Implement search functionality
               }
           ),
           IconButton(
-            icon: const Icon(Icons.sort),
+            icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
             onPressed: () {
-              //TODO: sort by percentage change
+              setState(() {
+                isFiltered = !isFiltered;
+                stockList.sortByPercentageChange(asc: isFiltered);
+              });
             }
           ),
         ]
