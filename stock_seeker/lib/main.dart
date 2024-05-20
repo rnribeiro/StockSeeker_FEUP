@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'charts/basic_chart.dart';
 import 'data/stock.dart';
+import 'screens/stock_details_screen.dart';
 
 typedef SelectedCallback = Function(Stock stock, bool selected);
 
@@ -40,7 +41,13 @@ class StockCard extends StatelessWidget {
       color: selected ? Colors.blueGrey.shade50 : Colors.white,
       child: ListTile(
         onTap: () {
-          // TODO: Navigate to company stock details page
+          // Navigate to stock details page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StockDetailsScreen(stock: stock),
+            ),
+          );
         },
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         shape: RoundedRectangleBorder(
@@ -52,22 +59,22 @@ class StockCard extends StatelessWidget {
             },
             child: _getAvatar(context)),
         title: Text(
-            stock.symbol,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-            maxLines: 1,
+          stock.symbol,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+          maxLines: 1,
         ),
         subtitle: Text(
-            stock.name,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-              fontSize: 12,
-            ),
-            maxLines: 1,
+          stock.name,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          ),
+          maxLines: 1,
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -149,12 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _handleStockSelection(Stock stock, bool selected) {
     setState(() {
-      // When a user changes what's in the cart, you need
-      // to change _shoppingCart inside a setState call to
-      // trigger a rebuild.
-      // The framework then calls build, below,
-      // which updates the visual appearance of the app.
-
       if (!selected && _selectedStocks.length < 2) {
         _selectedStocks.add(stock);
       } else {
@@ -203,53 +204,53 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("StockSeeker"),
-        backgroundColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // TODO: Implement search functionality
-              }
-          ),
-          IconButton(
-            icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
-            onPressed: () {
-              setState(() {
-                isFiltered = !isFiltered;
-                stockList.sortByPercentageChange(asc: isFiltered);
-              });
-            }
-          ),
-        ]
-      ),
-      floatingActionButton: _getFloatingActionButton(),
-      body:
+        appBar: AppBar(
+            title: const Text("StockSeeker"),
+            backgroundColor: Colors.transparent,
+            scrolledUnderElevation: 0,
+            actions: [
+              IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    // TODO: Implement search functionality
+                  }
+              ),
+              IconButton(
+                  icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
+                  onPressed: () {
+                    setState(() {
+                      isFiltered = !isFiltered;
+                      stockList.sortByPercentageChange(asc: isFiltered);
+                    });
+                  }
+              ),
+            ]
+        ),
+        floatingActionButton: _getFloatingActionButton(),
+        body:
         loaded
-          ? ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-              itemCount: stockList.stocks.length,
-              itemBuilder: (context, index) {
-                return StockCard(
-                  stock: stockList.stocks[index],
-                  selected: _selectedStocks.contains(stockList.stocks[index]),
-                  onSelected: _handleStockSelection,
-                );
-              },
-            )
-          : const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
+            ? ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+          itemCount: stockList.stocks.length,
+          itemBuilder: (context, index) {
+            return StockCard(
+              stock: stockList.stocks[index],
+              selected: _selectedStocks.contains(stockList.stocks[index]),
+              onSelected: _handleStockSelection,
+            );
+          },
+        )
+            : const Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(
                   color: Colors.blueGrey,
                   strokeWidth: 4,
                 ),
               ]
-            ),
-          )
-        );
-      }
+          ),
+        )
+    );
+  }
 }
