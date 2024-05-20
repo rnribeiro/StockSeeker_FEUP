@@ -90,7 +90,7 @@ class Stock {
     required String symbol,
     String interval = '5min',
     int outputSize = 1440,
-    int dp = 4,
+    int dp = 2,
     String order = 'ASC',
     bool previousClose = true,
     String? startDate,
@@ -142,9 +142,10 @@ class Stock {
   }
 
   Future<void> fecthQuoteData(
-      {required String symbol, int apiKeyIndex = 0}) async {
+      {required String symbol, int apiKeyIndex = 0, int dp = 2}) async {
     var url = Uri.https('api.twelvedata.com', '/quote', {
       'symbol': symbol,
+      'dp': dp.toString(),
       'apikey': apiKeys[apiKeyIndex],
     });
 
@@ -173,7 +174,7 @@ class Stock {
       {required String symbol,
       String interval = '1day',
       int outputSize = 180, // Default to previous 6 months
-      int dp = 5,
+      int dp = 2,
       String order = 'ASC',
       bool previousClose = true,
       String? startDate,
