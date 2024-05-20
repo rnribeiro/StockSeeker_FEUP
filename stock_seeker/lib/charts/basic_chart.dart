@@ -50,7 +50,7 @@ class BasicChart extends StatelessWidget {
                 .toList(),
             isCurved: true,
             preventCurveOverShooting: true,
-            barWidth: 3,
+            barWidth: 2,
             isStrokeCapRound: true,
             isStrokeJoinRound: true,
             dotData: const FlDotData(show: false),
