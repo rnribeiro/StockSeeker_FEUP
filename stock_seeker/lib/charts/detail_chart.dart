@@ -22,7 +22,7 @@ class _DetailChartState extends State<DetailChart> {
   List<StockValue> _getFilteredData(Stock stock) {
     switch (_selectedTimeframe) {
       case '1D':
-        return stock.getLastXDaysData(1);
+        return stock.daily;
       case '1W':
         return stock.getLastXDaysData(7);
       case '1M':
@@ -32,7 +32,7 @@ class _DetailChartState extends State<DetailChart> {
       case '6M':
         return stock.getLastXDaysData(180);
       default:
-        return stock.getLastXDaysData(1);
+        return stock.daily;
     }
   }
 
@@ -51,6 +51,9 @@ class _DetailChartState extends State<DetailChart> {
 
   @override
   Widget build(BuildContext context) {
+    final stock = widget.stockList.first;
+    final filteredData = _getFilteredData(stock);
+
     return Column(
       children: [
         Row(
@@ -70,52 +73,45 @@ class _DetailChartState extends State<DetailChart> {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 60,
-                    getTitlesWidget: (value, meta) => SideTitleWidget(
-                      axisSide: meta.axisSide,
-                      space: 5,
-                      child: Text(convertDate(
-                          widget.stockList.first.daily[value.toInt()].dateTime, 'HH')),
-                    ),
+                    interval: filteredData.length / 5, // Adjust this interval as needed
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= filteredData.length) return Container();
+                      final dateTime = filteredData[index].dateTime;
+                      final label = _selectedTimeframe == '1D'
+                          ? convertDate(dateTime, 'HH:mm')
+                          : convertDate(dateTime, 'MM/dd');
+                      return SideTitleWidget(
+                        axisSide: meta.axisSide,
+                        space: 5,
+                        child: Text(label),
+                      );
+                    },
                   ),
                 ),
               ),
               borderData: FlBorderData(show: false),
               minX: 0,
-              minY: widget.stockList
-                  .map((stock) => _getFilteredData(stock)
-                  .map((value) => double.parse(value.close))
-                  .reduce(min))
-                  .reduce(min)
-                  .floorToDouble(),
-              maxY: widget.stockList
-                  .map((stock) => _getFilteredData(stock)
-                  .map((value) => double.parse(value.close))
-                  .reduce(max))
-                  .reduce(max)
-                  .ceilToDouble(),
-              lineBarsData: widget.stockList
-                  .map((stock) => LineChartBarData(
-                spots: _getFilteredData(stock)
-                    .asMap()
-                    .entries
-                    .map((entry) => FlSpot(entry.key.toDouble(),
-                    double.parse(entry.value.close)))
-                    .toList(),
-                isCurved: true,
-                preventCurveOverShooting: true,
-                barWidth: 3,
-                isStrokeCapRound: true,
-                isStrokeJoinRound: true,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: false,
+              maxX: filteredData.length - 1.toDouble(),
+              minY: filteredData.map((value) => double.parse(value.close)).reduce(min).floorToDouble(),
+              maxY: filteredData.map((value) => double.parse(value.close)).reduce(max).ceilToDouble(),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: filteredData
+                      .asMap()
+                      .entries
+                      .map((entry) => FlSpot(entry.key.toDouble(), double.parse(entry.value.close)))
+                      .toList(),
+                  isCurved: true,
+                  preventCurveOverShooting: true,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  isStrokeJoinRound: true,
+                  dotData: const FlDotData(show: false),
+                  belowBarData: BarAreaData(show: false),
+                  color: stock.isQuoteCloseDifferencePositive() ? Colors.green : Colors.red,
                 ),
-                color: stock.isQuoteCloseDifferencePositive()
-                    ? Colors.green
-                    : Colors.red,
-              ))
-                  .toList(),
+              ],
             ),
           ),
         ),
