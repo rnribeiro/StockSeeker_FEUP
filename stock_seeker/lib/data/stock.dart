@@ -74,13 +74,24 @@ class Stock {
       await fetchDailyData(
           symbol: symbol, startDate: formattedNow, timezone: timezone);
     } else {
-      // Define the start date as yesterday
-      var yesterday = DateTime.now().subtract(const Duration(days: 2));
+      // Define the start date as the last available day
+      DateTime now = DateTime.now();
+      DateTime lastAvailableDay;
+
+      // If today is Monday or Sunday, adjust accordingly
+      if (now.weekday == DateTime.monday) {
+        lastAvailableDay = now.subtract(const Duration(days: 3));
+      } else if (now.weekday == DateTime.sunday) {
+        lastAvailableDay = now.subtract(const Duration(days: 2));
+      } else {
+        lastAvailableDay = now.subtract(const Duration(days: 1));
+      }
+
       var dateFormatter = DateFormat('yyyy-MM-dd');
-      var formattedYesterday = dateFormatter.format(yesterday);
+      var formattedLastAvailableDay = dateFormatter.format(lastAvailableDay);
 
       await fetchDailyData(
-          symbol: symbol, startDate: formattedYesterday, timezone: timezone);
+          symbol: symbol, startDate: formattedLastAvailableDay, timezone: timezone);
     }
 
     await fetchLogo();
