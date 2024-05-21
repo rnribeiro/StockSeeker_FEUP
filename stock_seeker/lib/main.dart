@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'charts/basic_chart.dart';
 import 'data/stock.dart';
 import './screens/stock_details_screen.dart';
@@ -44,7 +43,7 @@ class StockCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StockDetailsScreen(stock: stock),
+              builder: (context) => StockDetailsScreen(stockList: [stock]),
             ),
           );
         },
@@ -171,7 +170,13 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.blueGrey,
         child: const Icon(Icons.stacked_line_chart, color: Colors.white),
         onPressed: () {
-          //TODO: Navigate to compare page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  StockDetailsScreen(stockList: _selectedStocks.toList()),
+            ),
+          );
         },
       );
     }
@@ -181,7 +186,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    stockList = StockList(['AAPL', 'IBM', 'HPE', 'MSFT', 'ORCL', 'GOOGL', 'META', 'X', 'INTC', 'AMZN']);
+    stockList = StockList([
+      'AAPL', 'IBM', 'HPE',
+      // 'MSFT', 'ORCL', 'GOOGL', 'META', 'X', 'INTC', 'AMZN'
+    ]);
     loadedStocks = List.filled(stockList.stocks.length, false);
     fetchStockData();
   }
@@ -229,28 +237,27 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: _getFloatingActionButton(),
       body: loaded
           ? ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-        itemCount: stockList.stocks.length,
-        itemBuilder: (context, index) {
-          return StockCard(
-            stock: stockList.stocks[index],
-            selected: _selectedStocks.contains(stockList.stocks[index]),
-            onSelected: _handleStockSelection,
-          );
-        },
-      )
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+              itemCount: stockList.stocks.length,
+              itemBuilder: (context, index) {
+                return StockCard(
+                  stock: stockList.stocks[index],
+                  selected: _selectedStocks.contains(stockList.stocks[index]),
+                  onSelected: _handleStockSelection,
+                );
+              },
+            )
           : const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              color: Colors.blueGrey,
-              strokeWidth: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    color: Colors.blueGrey,
+                    strokeWidth: 4,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
-

@@ -184,7 +184,7 @@ class Stock {
   Future<void> fetchHistoryData(
       {required String symbol,
       String interval = '1day',
-      int outputSize = 180, // Default to previous 6 months
+      int outputSize = 250,
       int dp = 2,
       String order = 'ASC',
       bool previousClose = true,
@@ -273,14 +273,26 @@ class Stock {
         .toList();
   }*/
 
-  List<StockValue> getLastXDaysData(int days) {
+  List<StockValue> getLastXWeekdaysData(int weekdays) {
     var now = DateTime.now();
-    var xDaysAgo = now.subtract(Duration(days: days));
+    var historyReversed = history.reversed.toList(); // Reversed to go from latest to oldest
+    List<StockValue> result = [];
+    int count = 0;
 
-    return history
-        .where((value) => DateTime.parse(value.dateTime).isAfter(xDaysAgo))
-        .toList();
+    for (var stockValue in historyReversed) {
+      var date = DateTime.parse(stockValue.dateTime);
+      if (date.isBefore(now)) {
+        if (date.weekday != DateTime.saturday && date.weekday != DateTime.sunday) {
+          result.add(stockValue);
+          count++;
+          if (count == weekdays) break;
+        }
+      }
+    }
+
+    return result.reversed.toList(); // Reverse back to original order
   }
+
 
   bool isMarketOpen() {
     return quote.isMarketOpen;
