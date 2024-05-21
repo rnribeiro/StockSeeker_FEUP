@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'charts/basic_chart.dart';
 import 'data/stock.dart';
-import 'screens/stock_details_screen.dart';
+import './screens/stock_details_screen.dart';
 
 typedef SelectedCallback = Function(Stock stock, bool selected);
 
@@ -41,7 +41,6 @@ class StockCard extends StatelessWidget {
       color: selected ? Colors.blueGrey.shade50 : Colors.white,
       child: ListTile(
         onTap: () {
-          // Navigate to stock details page
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -99,14 +98,14 @@ class StockCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                    stock.quote.percentChange + '%',
-                    style: TextStyle(
-                      color: stock.isQuoteCloseDifferencePositive()
-                          ? Colors.green
-                          : Colors.red,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    )
+                  '${stock.quote.percentChange}%',
+                  style: TextStyle(
+                    color: stock.isQuoteCloseDifferencePositive()
+                        ? Colors.green
+                        : Colors.red,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -152,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<bool> loadedStocks = [];
 
   // List of selected stocks
-  final _selectedStocks = <Stock> {};
+  final _selectedStocks = <Stock>{};
 
   void _handleStockSelection(Stock stock, bool selected) {
     setState(() {
@@ -169,11 +168,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _getFloatingActionButton() {
     if (_selectedStocks.length == 2) {
       return FloatingActionButton(
-          backgroundColor: Colors.blueGrey,
-          child: const Icon(Icons.stacked_line_chart, color: Colors.white),
-          onPressed: () {
-            //TODO: Navigate to compare page
-          });
+        backgroundColor: Colors.blueGrey,
+        child: const Icon(Icons.stacked_line_chart, color: Colors.white),
+        onPressed: () {
+          //TODO: Navigate to compare page
+        },
+      );
     }
     return Container();
   }
@@ -204,53 +204,53 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: const Text("StockSeeker"),
-            backgroundColor: Colors.transparent,
-            scrolledUnderElevation: 0,
-            actions: [
-              IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    // TODO: Implement search functionality
-                  }
-              ),
-              IconButton(
-                  icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
-                  onPressed: () {
-                    setState(() {
-                      isFiltered = !isFiltered;
-                      stockList.sortByPercentageChange(asc: isFiltered);
-                    });
-                  }
-              ),
-            ]
-        ),
-        floatingActionButton: _getFloatingActionButton(),
-        body:
-        loaded
-            ? ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-          itemCount: stockList.stocks.length,
-          itemBuilder: (context, index) {
-            return StockCard(
-              stock: stockList.stocks[index],
-              selected: _selectedStocks.contains(stockList.stocks[index]),
-              onSelected: _handleStockSelection,
-            );
-          },
-        )
-            : const Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(
-                  color: Colors.blueGrey,
-                  strokeWidth: 4,
-                ),
-              ]
+      appBar: AppBar(
+        title: const Text("StockSeeker"),
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              // TODO: Implement search functionality
+            },
           ),
-        )
+          IconButton(
+            icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
+            onPressed: () {
+              setState(() {
+                isFiltered = !isFiltered;
+                stockList.sortByPercentageChange(asc: isFiltered);
+              });
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: _getFloatingActionButton(),
+      body: loaded
+          ? ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+        itemCount: stockList.stocks.length,
+        itemBuilder: (context, index) {
+          return StockCard(
+            stock: stockList.stocks[index],
+            selected: _selectedStocks.contains(stockList.stocks[index]),
+            onSelected: _handleStockSelection,
+          );
+        },
+      )
+          : const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: Colors.blueGrey,
+              strokeWidth: 4,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+

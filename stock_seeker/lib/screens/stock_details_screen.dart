@@ -1,119 +1,169 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../data/stock.dart';
-import '../utils/date_converter.dart';
 import '../charts/detail_chart.dart';
-import '../charts/basic_chart.dart';
 
-class StockDetailsScreen extends StatelessWidget {
+class StockDetailsScreen extends StatefulWidget {
   final Stock stock;
 
   const StockDetailsScreen({Key? key, required this.stock}) : super(key: key);
 
   @override
+  _StockDetailsScreenState createState() => _StockDetailsScreenState();
+}
+
+class _StockDetailsScreenState extends State<StockDetailsScreen> {
+  String selectedRange = '1D';
+  late List<StockValue> chartData;
+
+  @override
+  void initState() {
+    super.initState();
+    updateChartData();
+  }
+
+  void updateChartData() {
+    setState(() {
+      switch (selectedRange) {
+        case '1D':
+          chartData = widget.stock.getLastXDaysData(1);
+          break;
+        case '1W':
+          chartData = widget.stock.getLastXDaysData(7);
+          break;
+        case '1M':
+          chartData = widget.stock.getLastXDaysData(30);
+          break;
+        case '1Y':
+          chartData = widget.stock.getLastXDaysData(365);
+          break;
+        case '5Y':
+          chartData = widget.stock.getLastXDaysData(365 * 5);
+          break;
+        default:
+          chartData = widget.stock.getLastXDaysData(1);
+          break;
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(stock.symbol),
+        title: Text('${widget.stock.name} (${widget.stock.symbol})'),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    stock.name,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    '${stock.exchange} - ${stock.currency}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\$${stock.quote.close}',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: stock.isQuoteCloseDifferencePositive()
-                              ? Colors.green
-                              : Colors.red,
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            stock.getFormattedChange(),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: stock.isQuoteCloseDifferencePositive()
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                          Text(
-                            stock.getFormattedPercentageChange(),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: stock.isQuoteCloseDifferencePositive()
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  SizedBox(
-                    height: 250,
-                    child: BasicChart(stock: stock),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Detailed Chart',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  SizedBox(height: 250, child: DetailChart(stockList: [stock])),
-                  SizedBox(height: 16),
-                  Text(
-                    'Historical Data',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Date')),
-                      DataColumn(label: Text('Open')),
-                      DataColumn(label: Text('High')),
-                      DataColumn(label: Text('Low')),
-                      DataColumn(label: Text('Close')),
-                      DataColumn(label: Text('Volume')),
-                    ],
-                    rows: stock.daily
-                        .map(
-                          (daily) => DataRow(
-                        cells: [
-                          DataCell(Text(convertDate(daily.dateTime, 'MM/dd/yyyy'))),
-                          DataCell(Text(daily.open)),
-                          DataCell(Text(daily.high)),
-                          DataCell(Text(daily.low)),
-                          DataCell(Text(daily.close)),
-                          DataCell(Text(daily.volume)),
-                        ],
-                      ),
-                    )
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
+            _buildStockInfo(),
+            const SizedBox(height: 20),
+            _buildDateRangeButtons(),
+            const SizedBox(height: 20),
+            _buildPriceChart(),
+            const SizedBox(height: 20),
+            _buildPriceDetails(),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildStockInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.stock.name,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          widget.stock.symbol,
+          style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+        ),
+        SizedBox(height: 10),
+        Text(
+          '\$${widget.stock.quote.close}',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateRangeButtons() {
+    final ranges = ['1D', '1W', '1M', '1Y', '5Y'];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: ranges.map((range) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: selectedRange == range
+                    ? Colors.blue
+                    : Colors.grey[300],
+              ),
+              onPressed: () {
+                setState(() {
+                  selectedRange = range; // Update selectedRange
+                });
+                updateChartData(); // Call updateChartData
+              },
+              child: Text(range),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildPriceDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPriceDetailRow('Open', widget.stock.quote.open),
+        _buildPriceDetailRow('Close', widget.stock.quote.close),
+        _buildPriceDetailRow('High', widget.stock.quote.high),
+        _buildPriceDetailRow('Low', widget.stock.quote.low),
+      ],
+    );
+  }
+
+  Widget _buildPriceDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 16),
+          ),
+          Text(
+            '\$${value}',
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceChart() {
+    return Expanded(
+      child: Container(
+        height: 200,
+        child: DetailChart(
+          stockList: [widget.stock], // Passing single stock data
+        ),
+      ),
+    );
+  }
+
+
 }
