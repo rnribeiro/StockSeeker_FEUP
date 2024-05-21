@@ -2,55 +2,16 @@ import 'package:flutter/material.dart';
 import '../data/stock.dart';
 import '../charts/detail_chart.dart';
 
-class StockDetailsScreen extends StatefulWidget {
+class StockDetailsScreen extends StatelessWidget {
   final Stock stock;
 
   const StockDetailsScreen({Key? key, required this.stock}) : super(key: key);
 
   @override
-  _StockDetailsScreenState createState() => _StockDetailsScreenState();
-}
-
-class _StockDetailsScreenState extends State<StockDetailsScreen> {
-  String selectedRange = '1D';
-  late List<StockValue> chartData;
-
-  @override
-  void initState() {
-    super.initState();
-    updateChartData();
-  }
-
-  void updateChartData() {
-    setState(() {
-      switch (selectedRange) {
-        case '1D':
-          chartData = widget.stock.getLastXDaysData(1);
-          break;
-        case '1W':
-          chartData = widget.stock.getLastXDaysData(7);
-          break;
-        case '1M':
-          chartData = widget.stock.getLastXDaysData(30);
-          break;
-        case '1Y':
-          chartData = widget.stock.getLastXDaysData(365);
-          break;
-        case '5Y':
-          chartData = widget.stock.getLastXDaysData(365 * 5);
-          break;
-        default:
-          chartData = widget.stock.getLastXDaysData(1);
-          break;
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.stock.name} (${widget.stock.symbol})'),
+        title: Text('${stock.name} (${stock.symbol})'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -58,8 +19,6 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildStockInfo(),
-            const SizedBox(height: 20),
-            _buildDateRangeButtons(),
             const SizedBox(height: 20),
             _buildPriceChart(),
             const SizedBox(height: 20),
@@ -76,50 +35,19 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.stock.name,
+          stock.name,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         Text(
-          widget.stock.symbol,
+          stock.symbol,
           style: TextStyle(fontSize: 18, color: Colors.lightBlue),
         ),
         SizedBox(height: 10),
         Text(
-          '\$${widget.stock.quote.close}',
+          '\$${stock.quote.close}',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ],
-    );
-  }
-
-  Widget _buildDateRangeButtons() {
-    final ranges = ['1D', '1W', '1M', '1Y', '5Y'];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: ranges.map((range) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: selectedRange == range
-                    ? Colors.blue
-                    : Colors.grey[300],
-              ),
-              onPressed: () {
-                setState(() {
-                  selectedRange = range; // Update selectedRange
-                });
-                updateChartData(); // Call updateChartData
-              },
-              child: Text(range),
-            ),
-          );
-        }).toList(),
-      ),
     );
   }
 
@@ -127,10 +55,10 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPriceDetailRow('Open', widget.stock.quote.open),
-        _buildPriceDetailRow('Close', widget.stock.quote.close),
-        _buildPriceDetailRow('High', widget.stock.quote.high),
-        _buildPriceDetailRow('Low', widget.stock.quote.low),
+        _buildPriceDetailRow('Open', stock.quote.open),
+        _buildPriceDetailRow('Close', stock.quote.close),
+        _buildPriceDetailRow('High', stock.quote.high),
+        _buildPriceDetailRow('Low', stock.quote.low),
       ],
     );
   }
@@ -159,11 +87,9 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
       child: Container(
         height: 200,
         child: DetailChart(
-          stockList: [widget.stock], // Passing single stock data
+          stockList: [stock], // Pass the stock object to DetailChart
         ),
       ),
     );
   }
-
-
 }
