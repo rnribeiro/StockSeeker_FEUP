@@ -193,7 +193,7 @@ class _DetailChartState extends State<DetailChart> {
                       isStrokeCapRound: true,
                       isStrokeJoinRound: true,
                       dotData: const FlDotData(show: false),
-                      belowBarData: BarAreaData(show: false),
+                      belowBarData: BarAreaData(show: true),
                       color: widget.stockList.length == 1
                           ? stock.isQuoteCloseDifferencePositive()
                               ? Colors.green
