@@ -89,7 +89,7 @@ class StockCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  stock.quote.close,
+                  '${stock.currency == 'USD' ? '\$' : ''}${stock.quote.close}',
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
@@ -152,6 +152,30 @@ class _MyHomePageState extends State<MyHomePage> {
   // List of selected stocks
   final _selectedStocks = <Stock>{};
 
+  final  _filters = <String>["Sort by name ASC", "Sort by name DSC", "Sort by % change ASC", "Sort by % change DSC"];
+
+  String _selectedFilter = "Sort by name ASC";
+
+  void _handleFilterChange(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+      switch (filter) {
+        case "Sort by name ASC":
+          stockList.sortBySymbol(asc: true);
+          break;
+        case "Sort by name DSC":
+          stockList.sortBySymbol(asc: false);
+          break;
+        case "Sort by % change ASC":
+          stockList.sortByPercentageChange(asc: true);
+          break;
+        case "Sort by % change DSC":
+          stockList.sortByPercentageChange(asc: false);
+          break;
+      }
+    });
+  }
+
   void _handleStockSelection(Stock stock, bool selected) {
     setState(() {
       if (!selected && _selectedStocks.length < 2) {
@@ -162,21 +186,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  bool isFiltered = false;
-
   Widget _getFloatingActionButton() {
     if (_selectedStocks.length == 2) {
       return FloatingActionButton(
         backgroundColor: Colors.blueGrey,
         child: const Icon(Icons.stacked_line_chart, color: Colors.white),
         onPressed: () {
+          List<Stock> tempList = _selectedStocks.toList();
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  StockDetailsScreen(stockList: _selectedStocks.toList()),
+                  StockDetailsScreen(stockList: tempList),
             ),
           );
+          // clear selectedStocks
+          setState(() {
+            _selectedStocks.clear();
+          });
         },
       );
     }
@@ -188,7 +215,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     stockList = StockList([
       'AAPL', 'IBM', 'HPE',
-      // 'MSFT', 'ORCL', 'GOOGL', 'META', 'X', 'INTC', 'AMZN'
+      'MSFT', 'ORCL', 'GOOGL', 'META', 'X', 'INTC', 'AMZN'
     ]);
     loadedStocks = List.filled(stockList.stocks.length, false);
     fetchStockData();
@@ -202,6 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
         loaded = loadedStocks.every((element) => element == true);
       });
     }
+    _handleFilterChange(_selectedFilter);
   }
 
   // Function to filter the stocks that are loaded
@@ -213,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("StockSeeker"),
+        title: const Text("StockSeeker", style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')),
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
         actions: [
@@ -224,11 +252,26 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           IconButton(
-            icon: Icon(isFiltered ? Icons.arrow_upward : Icons.arrow_downward),
+            icon: const Icon(Icons.filter_list),
             onPressed: () {
-              setState(() {
-                isFiltered = !isFiltered;
-                stockList.sortByPercentageChange(asc: isFiltered);
+              showModalBottomSheet<dynamic>(isScrollControlled: true, context: context, builder: (context) {
+                return Wrap(
+                  children: [
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 12)),
+                    for (var filter in _filters)
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 26),
+                        title: Text(filter),
+                        trailing: filter == _selectedFilter
+                            ? const Icon(Icons.check)
+                            : null,
+                        onTap: () {
+                          _handleFilterChange(filter);
+                          Navigator.pop(context);
+                        },
+                      ),
+                  ],
+                );
               });
             },
           ),

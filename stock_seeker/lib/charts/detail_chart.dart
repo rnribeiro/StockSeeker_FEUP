@@ -140,7 +140,7 @@ class _DetailChartState extends State<DetailChart> {
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: maxLabelWidth + 5, // Dynamic reserved size
+                      reservedSize: maxLabelWidth + 12, // Dynamic reserved size
                       getTitlesWidget: (value, meta) {
                         return Padding(
                             padding: const EdgeInsets.only(

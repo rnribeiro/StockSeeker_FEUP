@@ -22,6 +22,12 @@ class _StockDetailsScreenState extends State<StockDetailsScreen> {
         title: Text(isSingleStock
             ? '${widget.stockList[0].name} (${widget.stockList[0].symbol})'
             : '${widget.stockList[0].symbol} vs ${widget.stockList[1].symbol}'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
