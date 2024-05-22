@@ -79,11 +79,11 @@ class _DetailChartState extends State<DetailChart> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 8.0, vertical: 4.0), // Reduced button size
-                textStyle: const TextStyle(fontSize: 12), // Smaller text
+                    horizontal: 8.0), // Reduced button size
+                textStyle: TextStyle(fontSize: 14, fontWeight: _selectedTimeframe == range ? FontWeight.bold : FontWeight.normal), // Smaller text
                 foregroundColor: Colors.white,
                 backgroundColor: _selectedTimeframe == range
-                    ? Colors.blue
+                    ? Colors.green
                     : Colors.grey[300],
               ),
               onPressed: () {
@@ -121,6 +121,7 @@ class _DetailChartState extends State<DetailChart> {
     return Column(
       children: [
         _buildDateRangeButtons(),
+        const SizedBox(height: 8),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
